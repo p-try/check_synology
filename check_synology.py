@@ -1,5 +1,13 @@
 #!/usr/bin/env python3
 
+#####
+
+# Modified version from Original.
+# Author: J.Petri, ICONICS
+# Branch: https://github.com/p-try/check_synology/tree/p-try
+
+####
+
 import argparse
 import sys
 import math
@@ -7,8 +15,8 @@ import re
 
 import easysnmp
 
-AUTHOR = "Frederic Werner,Iconics"
-VERSION = "1.1.0"
+AUTHOR = "Frederic Werner, ICONICS"
+VERSION = "1.1.0-p-try"
 
 parser = argparse.ArgumentParser()
 parser.add_argument("hostname", help="the hostname", type=str)
