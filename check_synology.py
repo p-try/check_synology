@@ -145,6 +145,7 @@ if mode == 'disk':
         i = item.oid_index or item.oid.split('.')[-1]
         disk_name = item.value
         disk_status_nr = snmpget('1.3.6.1.4.1.6574.2.1.1.5.' + str(i))
+        disk_health_status_nr = snmpget('1.3.6.1.4.1.6574.2.1.1.13.' + str(i))
         disk_temp = snmpget('1.3.6.1.4.1.6574.2.1.1.6.' + str(i))
         status_translation = {
             '1': "Normal",
@@ -153,11 +154,18 @@ if mode == 'disk':
             '4': "SystemPartitionFailed",
             '5': "Crashed"
         }
+        health_status_translation = {
+            '1': "Normal",
+            '2': "Warning",
+            '3': "Critical",
+            '4': "Failing"
+        }
         disk_status = status_translation.get(disk_status_nr)
+        disk_health_status = health_status_translation.get(disk_health_status_nr)
         disk_name = disk_name.replace(" ", "")
 
         # 2. Compute textual and perfdata output.
-        output += ' - ' + disk_name + ': Status: ' + disk_status + ', Temperature: ' + disk_temp + ' C'
+        output += ' - ' + disk_name + ': Status: ' + disk_status + ', Temperature: ' + disk_temp + ' C' + ', Health status: ' + disk_health_status
         perfdata += 'temperature' + disk_name + '=' + disk_temp + 'c '
 
         # 3. Collect outcome for individual sensor state.
@@ -176,6 +184,14 @@ if mode == 'disk':
         if warning and warning < int(disk_temp):
             states.append('WARNING')
         if critical and critical < int(disk_temp):
+            states.append('CRITICAL')
+
+        # 3.c Evaluate list of disk health status flag.
+        if disk_health_status in ["Normal"]:
+            states.append('OK')
+        elif disk_health_status in ["Warning"]:
+            states.append('WARNING')
+        elif disk_health_status in ["Critical", "Failing"]:
             states.append('CRITICAL')
 
     # 4. Compute outcome for overall sensor state.
