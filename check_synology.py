@@ -7,7 +7,7 @@ import re
 
 import easysnmp
 
-AUTHOR = "Frederic Werner"
+AUTHOR = "Frederic Werner,Iconics"
 VERSION = "1.1.0"
 
 parser = argparse.ArgumentParser()
@@ -19,6 +19,7 @@ parser.add_argument("mode", help="the mode", type=str, choices=["load", "memory"
 parser.add_argument("-w", help="warning value for selected mode", type=int)
 parser.add_argument("-c", help="critical value for selected mode", type=int)
 parser.add_argument("-p", help="the snmp port", type=int, dest="port", default=161)
+parser.add_argument("-a", help="SNMP auth protocol encryption", type=str, default="SHA", choices=["SHA", "MD5"])
 parser.add_argument("-e", help="SNMP privacy protocol encryption", type=str, default="AES128", choices=["AES128", "DES"])
 parser.add_argument("-t", help="timeout for snmp connection", type=int, default=10)
 parser.add_argument("-r", help="retries for snmp connection if timeout occurs", type=int, default=3)
@@ -32,6 +33,7 @@ priv_key = args.privkey
 mode = args.mode
 warning = args.w
 critical = args.c
+auth_protocol = args.a
 priv_protocol = args.e
 snmp_timeout = args.t
 snmp_retries = args.r
@@ -57,7 +59,7 @@ try:
         security_level="auth_with_privacy",
         security_username=user_name,
         auth_password=auth_key,
-        auth_protocol="MD5",
+        auth_protocol=auth_protocol,
         privacy_password=priv_key,
         privacy_protocol=priv_protocol)
 
@@ -204,7 +206,7 @@ if mode == 'storage':
             storage_free = int(storage_size - storage_used)
 
             # some virtual volume have size zero
-            if storage_size == 0: 
+            if storage_size == 0:
                 continue
 
             storage_used_percent = int(storage_used * 100 / storage_size)
@@ -247,7 +249,7 @@ if mode == 'status':
     status_model = snmpget('1.3.6.1.4.1.6574.1.5.1.0')
     status_serial = snmpget('1.3.6.1.4.1.6574.1.5.2.0')
     status_temperature = snmpget('1.3.6.1.4.1.6574.1.2.0')
-    
+
     status_system_nr = snmpget('1.3.6.1.4.1.6574.1.1.0')
     status_system_fan_nr = snmpget('1.3.6.1.4.1.6574.1.4.1.0')
     status_cpu_fan_nr = snmpget('1.3.6.1.4.1.6574.1.4.2.0')
